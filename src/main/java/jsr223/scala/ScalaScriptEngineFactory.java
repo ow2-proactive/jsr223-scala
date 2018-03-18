@@ -46,10 +46,10 @@ public class ScalaScriptEngineFactory implements ScriptEngineFactory {
     static final Map<String, String> PARAMETERS = new HashMap<>();
 
     static {
-        String scalaEngineVersion = new ScalaVersionGetter().getScalaVersion();
+        String scalaEngineVersion = ScalaVersionGetter.getScalaVersion();
 
-        PARAMETERS.put(ScriptEngine.NAME, "scalawrap");
-        PARAMETERS.put(ScriptEngine.ENGINE, "scalawrap");
+        PARAMETERS.put(ScriptEngine.NAME, "scalaw");
+        PARAMETERS.put(ScriptEngine.ENGINE, "scalaw");
         PARAMETERS.put(ScriptEngine.ENGINE_VERSION, scalaEngineVersion);
         PARAMETERS.put(ScriptEngine.LANGUAGE, "scala");
         PARAMETERS.put(ScriptEngine.LANGUAGE_VERSION, scalaEngineVersion);
@@ -77,7 +77,7 @@ public class ScalaScriptEngineFactory implements ScriptEngineFactory {
 
     @Override
     public List<String> getNames() {
-        return Arrays.asList(PARAMETERS.get(ScriptEngine.NAME), "scala", "Scala");
+        return Arrays.asList(PARAMETERS.get(ScriptEngine.NAME), "Scalaw");
     }
 
     @Override
@@ -124,5 +124,4 @@ public class ScalaScriptEngineFactory implements ScriptEngineFactory {
 
         return new ScalaScriptEngine(eng);
     }
-
 }

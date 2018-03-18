@@ -1,14 +1,9 @@
 import java.lang.reflect.InvocationTargetException
 
-
 import scala.language.dynamics
 
 
 class DynamicWrapper(obj: Object) extends Dynamic {
-
-  def value = obj
-
-
 
   def applyDynamic(name: String)(args: Any*) : DynamicWrapper = {
 
@@ -35,7 +30,6 @@ class DynamicWrapper(obj: Object) extends Dynamic {
   def selectDynamic(name: String) : DynamicWrapper = applyDynamic(name)()
 
   override def toString: String = obj.toString
-
 }
 
 implicit def toDouble (dyn : DynamicWrapper) : Double = {
@@ -47,4 +41,4 @@ implicit def toDouble (dyn : DynamicWrapper) : Double = {
       case s : Short => s.toDouble
       case b : Byte => b.toDouble
     }
-  }
+}
