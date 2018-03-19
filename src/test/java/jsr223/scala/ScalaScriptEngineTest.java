@@ -25,17 +25,6 @@
  */
 package jsr223.scala;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.script.ScriptEngine;
-
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -51,6 +40,17 @@ import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SelectionScript;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
+
+import javax.script.ScriptEngine;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -248,40 +248,34 @@ public class ScalaScriptEngineTest {
                                       (Boolean) res.getResult());
     }
 
-    //    @Test
-    //    public void testResults() throws Exception {
-    //
-    //        int NB_TASKS = 10;
-    //
-    //        String[] taskNames = new String[NB_TASKS];
-    //        TaskResult[] results = new TaskResult[NB_TASKS];
-    //        double[] resValues = new double[NB_TASKS];
-    //        String scalaScript = "val result = Array (";
-    //
-    //        for (int i = 1; i <= NB_TASKS; i++) {
-    //            taskNames[i - 1] = "task" + i;
-    //            resValues[i - 1] = i;
-    //            TaskId id = new MockedTaskId(taskNames[i - 1]);
-    //            results[i - 1] = new MockedTaskResult(id, resValues[i - 1]);
-    //            scalaScript += "results[0].value()[" + (i - 1) + "]" + (i < NB_TASKS ? "," : "");
-    //        }
-    //        scalaScript += ")";
-    //        scalaScript = "results(1)";
-    //
-    //        Map<String, Object> aBindings = Collections.singletonMap(SchedulerConstants.RESULTS_VARIABLE, results);
-    //
-    //        SimpleScript ss = new SimpleScript(scalaScript, ScalaScriptEngineFactory.PARAMETERS.get(ScriptEngine.NAME));
-    //        TaskScript taskScript = new TaskScript(ss);
-    //        ScriptResult<Serializable> res = taskScript.execute(aBindings, System.out, System.err);
-    //
-    //        System.out.println("**" + res.getOutput() + "**");
-    //
-    //        System.out.println(res.getException());
-    //
-    //        Serializable value = res.getResult();
-    //        assertTrue("Invalid result type of the scala script", value instanceof double[]);
-    //        assertArrayEquals(resValues, (double[]) res.getResult(), 0);
-    //    }
+    @Test
+    public void testResults() throws Exception {
+
+        int NB_TASKS = 10;
+
+        String[] taskNames = new String[NB_TASKS];
+        TaskResult[] results = new TaskResult[NB_TASKS];
+        double[] resValues = new double[NB_TASKS];
+        String scalaScript = "val result = Array (";
+
+        for (int i = 1; i <= NB_TASKS; i++) {
+            taskNames[i - 1] = "task" + i;
+            resValues[i - 1] = i;
+            TaskId id = new MockedTaskId(taskNames[i - 1]);
+            results[i - 1] = new MockedTaskResult(id, resValues[i - 1]);
+            scalaScript += "results(" + (i - 1) + ").getValue().value" + (i < NB_TASKS ? "," : "");
+        }
+        scalaScript += ")";
+
+        Map<String, Object> aBindings = Collections.singletonMap(SchedulerConstants.RESULTS_VARIABLE, results);
+
+        SimpleScript ss = new SimpleScript(scalaScript, ScalaScriptEngineFactory.PARAMETERS.get(ScriptEngine.NAME));
+        TaskScript taskScript = new TaskScript(ss);
+        ScriptResult<Serializable> res = taskScript.execute(aBindings, System.out, System.err);
+
+        Object[] value = (Object[]) res.getResult();
+        assertEquals(Arrays.toString(value), Arrays.toString(resValues));
+    }
 
     @Test
     public void testEmptyBindingsMetadata() throws Exception {
@@ -334,34 +328,7 @@ public class ScalaScriptEngineTest {
                                       metadata.get("BB"));
     }
 
-    //    @Test
-    //    public void testScalaScriptFile() throws Exception {
-    //        String scalaScript = CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream(TEST_SCALA_KICK_FILE_NAME),
-    //                                                                        Charsets.UTF_8)) +
-    //                             System.getProperty("line.separator");
-    //
-    //        SimpleScript ss = new SimpleScript(scalaScript, ScalaScriptEngineFactory.PARAMETERS.get(ScriptEngine.NAME));
-    //        TaskScript taskScript = new TaskScript(ss);
-    //        ByteArrayOutputStream output = new ByteArrayOutputStream();
-    //
-    //        HashMap<String, Object> variablesMap = new HashMap<String, Object>(1);
-    //        Map<String, Object> aBindings = Collections.singletonMap(SchedulerConstants.VARIABLES_BINDING_NAME,
-    //                                                                 (Object) variablesMap);
-    //
-    //        ScriptResult<Serializable> res = taskScript.execute(aBindings, System.out, System.err);
-    //
-    //        System.out.println("Script output:");
-    //        System.out.println(output.toString());
-    //
-    //        System.out.println("Script Exception:");
-    //        System.out.println(res.getException());
-    //
-    //        if (res.getResult() == null) {
-    //            fail("The result is null, the Script Engine is not executed correctly!");
-    //        }
-    //    }
-
-    final class MockedTaskResult implements TaskResult {
+    public final class MockedTaskResult implements TaskResult {
         private TaskId taskId;
 
         private Serializable value;
@@ -420,7 +387,7 @@ public class ScalaScriptEngineTest {
         }
 
         public Serializable getValue() {
-            return value;
+            return this.value;
         }
 
         @Override

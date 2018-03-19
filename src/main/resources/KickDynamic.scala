@@ -5,6 +5,8 @@ import scala.language.dynamics
 
 class DynamicWrapper(obj: Object) extends Dynamic {
 
+  def value = obj
+
   def applyDynamic(name: String)(args: Any*) : DynamicWrapper = {
 
     val candidates = obj.getClass.getMethods.filter(method => method.getName.equals(name))
@@ -23,7 +25,7 @@ class DynamicWrapper(obj: Object) extends Dynamic {
       }
     })
 
-    throw new NoSuchMethodException(s"Object $obj does not have method $name which takes: "
+    throw new NoSuchMethodException("Object $obj does not have method $name which takes: "
       + args.map(_.toString).mkString(" "))
   }
 

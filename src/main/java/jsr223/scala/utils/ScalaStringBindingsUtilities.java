@@ -82,7 +82,12 @@ public class ScalaStringBindingsUtilities {
             Object value = binding.getValue();
 
             if (!isSystemVariable(key) && value != null) {
-                answer += "val " + key + " = new DynamicWrapper(_" + key + ")" + System.getProperty("line.separator");
+                if (value.getClass().isArray()) {
+                    answer += "val " + key + " = _" + key + ".asInstanceOf[Array[Object]].map(new DynamicWrapper(_))" +
+                              System.getProperty("line.separator");
+                } else
+                    answer += "val " + key + " = new DynamicWrapper(_" + key + ")" +
+                              System.getProperty("line.separator");
             }
         }
 
