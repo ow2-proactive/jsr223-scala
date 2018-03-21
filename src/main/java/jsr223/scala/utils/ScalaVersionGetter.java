@@ -34,7 +34,6 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import lombok.NoArgsConstructor;
 import scala.tools.nsc.interpreter.Scripted;
 
 
@@ -42,20 +41,22 @@ import scala.tools.nsc.interpreter.Scripted;
  * @author ActiveEon Team
  * @since 04/10/2017
  */
-@NoArgsConstructor
 public class ScalaVersionGetter {
 
     private static final Logger log = Logger.getLogger(ScalaVersionGetter.class);
 
     public static final String SCALA_VERSION_IF_NOT_INSTALLED = "Could not determine version";
 
-    public String getScalaVersion() {
+    public static String getScalaVersion() {
 
-        String result = SCALA_VERSION_IF_NOT_INSTALLED; //Default error string for result if version recovery fails
+        String result = SCALA_VERSION_IF_NOT_INSTALLED;
 
+        log.debug("Retrieving the scala version from the jar manifest file");
         String classPath = Scripted.class.getResource(Scripted.class.getSimpleName() + ".class").toString();
         String libPath = classPath.substring(0, classPath.lastIndexOf("!"));
         String filePath = libPath + "!/META-INF/MANIFEST.MF";
+
+        log.debug("Retrieving the scala version from " + filePath);
         Manifest manifest = null;
         try {
             manifest = new Manifest(new URL(filePath).openStream());
@@ -65,13 +66,12 @@ public class ScalaVersionGetter {
         Attributes attr = manifest.getMainAttributes();
         String bundle_version = attr.getValue("Bundle-Version");
 
-        // Extract output
+        log.debug("Retrieving version from " + bundle_version);
         Pattern pattern = Pattern.compile(".*(\\d+[.]\\d+[.]\\d+).*");
         Matcher matcher = pattern.matcher(bundle_version);
         if (matcher.find())
             result = matcher.group(1);
 
-        System.out.println("RESULT " + result);
         return result;
     }
 

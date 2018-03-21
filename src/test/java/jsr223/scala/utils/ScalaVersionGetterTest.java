@@ -25,45 +25,27 @@
  */
 package jsr223.scala.utils;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import static org.junit.Assert.assertTrue;
 
-import javax.script.ScriptContext;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.junit.Test;
 
 
 /**
  * @author ActiveEon Team
- * @since 05/10/2017
+ * @since 04/10/2017
  */
-public class ScalaStreamUtilities {
+public class ScalaVersionGetterTest {
 
-    public static void pipe(Reader from, Writer to) throws IOException {
-        char[] buff = new char[1024];
-        int n = from.read(buff);
-        while (n != -1) {
-            to.write(buff, 0, n);
-            to.flush();
-            n = from.read(buff);
-        }
-        from.close();
+    @Test
+    public void getScalaVersionTest() {
+
+        String scalaVersion = ScalaVersionGetter.getScalaVersion();
+        Pattern pattern = Pattern.compile("\\d+[.]\\d+[.]\\d+");
+        Matcher matcher = pattern.matcher(scalaVersion);
+        assertTrue(matcher.find());
     }
 
-    public static void attachStreams(ScriptContext context, Writer processOutput, Writer processError,
-            Reader processInput) {
-        if (processOutput != null) {
-            // Attach to std output
-            context.setWriter(processOutput);
-        }
-
-        if (processError != null) {
-            // Attach error output
-            context.setErrorWriter(processError);
-        }
-
-        if (processInput != null) {
-            // Attach process input
-            context.setReader(processInput);
-        }
-    }
 }

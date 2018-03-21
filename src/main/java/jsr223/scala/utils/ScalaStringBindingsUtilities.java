@@ -30,18 +30,19 @@ import java.util.Map;
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
-import lombok.NoArgsConstructor;
-import lombok.extern.log4j.Log4j;
+import org.apache.log4j.Logger;
 
 
-@Log4j
-@NoArgsConstructor
+/**
+ * @author ActiveEon Team
+ * @since 04/10/2017
+ */
 public class ScalaStringBindingsUtilities {
 
-    public static final String VARIABLES_BINDING_NAME = "variables";
+    private static final Logger log = Logger.getLogger(ScalaStringBindingsUtilities.class);
 
-    public static boolean isSystemBinding(Map.Entry<String, Object> binding) {
-        switch (binding.getKey()) {
+    public static boolean isSystemVariable(String key) {
+        switch (key) {
             case "javax.script.filename":
                 return true;
             default:
@@ -50,17 +51,21 @@ public class ScalaStringBindingsUtilities {
     }
 
     public static Bindings transformBindings(Bindings bindings) {
+
+        log.debug("Giving temporary names to bindings");
         if (bindings == null) {
             return null;
         }
         Bindings answer = new SimpleBindings();
 
         for (Map.Entry<String, Object> binding : bindings.entrySet()) {
-            if (isSystemBinding(binding) || binding.getValue() == null) {
-                answer.put(binding.getKey(), binding.getValue());
+            String key = binding.getKey();
+            Object value = binding.getValue();
+            if (isSystemVariable(key) || value == null) {
+                answer.put(key, value);
 
             } else {
-                answer.put("_" + binding.getKey(), binding.getValue());
+                answer.put("_" + key, value);
             }
         }
         return answer;
@@ -68,18 +73,25 @@ public class ScalaStringBindingsUtilities {
 
     public static String generateWrappingScalaInstructions(Bindings bindings) {
 
+        log.debug("Generating dynamic wrapping instructions");
         String answer = "";
 
         for (Map.Entry<String, Object> binding : bindings.entrySet()) {
-            if (!isSystemBinding(binding) && binding.getValue() != null) {
-                String bindingKey = binding.getKey();
-                Object bindingValue = binding.getValue();
 
-                answer += "val " + bindingKey + " = new DynamicWrapper(_" + bindingKey + ")" +
-                          System.getProperty("line.separator");
+            String key = binding.getKey();
+            Object value = binding.getValue();
+
+            if (!isSystemVariable(key) && value != null) {
+                if (value.getClass().isArray()) {
+                    answer += "val " + key + " = _" + key + ".asInstanceOf[Array[Object]].map(new DynamicWrapper(_))" +
+                              System.getProperty("line.separator");
+                } else
+                    answer += "val " + key + " = new DynamicWrapper(_" + key + ")" +
+                              System.getProperty("line.separator");
             }
         }
 
+        log.debug(answer);
         return answer;
     }
 

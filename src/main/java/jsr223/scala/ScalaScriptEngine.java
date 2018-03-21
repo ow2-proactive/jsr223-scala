@@ -49,7 +49,6 @@ import jsr223.scala.utils.ScalaStringBindingsUtilities;
  * @author ActiveEon Team
  * @since 04/10/2017
  */
-
 public class ScalaScriptEngine extends AbstractScriptEngine {
 
     private static final Logger log = Logger.getLogger(ScalaScriptEngine.class);
@@ -65,38 +64,23 @@ public class ScalaScriptEngine extends AbstractScriptEngine {
     @Override
     public Object eval(String script, ScriptContext context) throws ScriptException {
 
+        log.debug("Setting the scala script engine bindings with renamed script context bindings");
         this.engine.setBindings(ScalaStringBindingsUtilities.transformBindings(context.getBindings(ScriptContext.ENGINE_SCOPE)),
                                 ScriptContext.ENGINE_SCOPE);
 
-        /////////// BUILD SCRIPT
+        log.debug("Building the script to execute");
+        final String scriptToExecute = createScriptToExecute(script);
 
-        String scriptToExecute = "";
-        try {
-            scriptToExecute += CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream(DYNAMIC_WRAPPER_SCALA_FILE_NAME),
-                                                                          Charsets.UTF_8)) +
-                               System.getProperty("line.separator");
-
-        } catch (IOException e) {
-            throw new ScriptException("Cannot find resource : " + DYNAMIC_WRAPPER_SCALA_FILE_NAME +
-                                      ". Failed to execute Scala with exception: " + e);
-        }
-
-        scriptToExecute += ScalaStringBindingsUtilities.generateWrappingScalaInstructions(context.getBindings(ScriptContext.ENGINE_SCOPE)) +
-                           System.getProperty("line.separator");
-        scriptToExecute += script;
-
-        /////////// EXECUTE
-
-        // Attach streams
+        log.debug("Attaching input, output and error streams");
         ScalaStreamUtilities.attachStreams(this.engine.getContext(),
                                            context.getWriter(),
                                            context.getErrorWriter(),
                                            context.getReader());
 
+        log.debug("Evaluating the script");
         this.engine.eval(scriptToExecute);
 
-        /////////// GET/UPDATE BINDINGS
-
+        log.debug("Getting and updating bindings after script evaluation");
         Bindings contextBindings = context.getBindings(ScriptContext.ENGINE_SCOPE);
         Object resultValue = this.getResultAndUpdateBindings(contextBindings);
         this.getValAndUpdateBindings(SelectionScript.RESULT_VARIABLE, contextBindings);
@@ -124,11 +108,36 @@ public class ScalaScriptEngine extends AbstractScriptEngine {
         return eval(stringWriter.toString(), context);
     }
 
+    private String createScriptToExecute(final String script) throws ScriptException {
+
+        String scriptToExecute = "";
+        try {
+            log.debug("Retrieve the dynamic wrapper scala file content");
+            scriptToExecute += CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream(DYNAMIC_WRAPPER_SCALA_FILE_NAME),
+                                                                          Charsets.UTF_8)) +
+                               System.getProperty("line.separator");
+
+        } catch (IOException e) {
+            throw new ScriptException("Cannot find resource : " + DYNAMIC_WRAPPER_SCALA_FILE_NAME +
+                                      ". Failed to execute Scala with exception: " + e);
+        }
+
+        log.debug("Generate a dynamic wrapping instruction per binding");
+        scriptToExecute += ScalaStringBindingsUtilities.generateWrappingScalaInstructions(context.getBindings(ScriptContext.ENGINE_SCOPE)) +
+                           System.getProperty("line.separator");
+
+        log.debug("Add the user script");
+        scriptToExecute += script;
+
+        return scriptToExecute;
+    }
+
     private Object getResultAndUpdateBindings(Bindings bindings) {
 
         Object resultValue = this.get(TaskScript.RESULT_VARIABLE);
         if (resultValue == null) {
-            resultValue = true; // TaskResult.getResult() returns true by default
+            log.debug("TaskResult.getResult() returns true since return is null");
+            resultValue = true;
         }
 
         bindings.put(TaskScript.RESULT_VARIABLE, resultValue);
@@ -171,7 +180,6 @@ public class ScalaScriptEngine extends AbstractScriptEngine {
                 // key is not found. This feels bad because it fails silently
                 // for the user, but it mimics behaviour in other script langs.
             }
-
         return value;
     }
 }
