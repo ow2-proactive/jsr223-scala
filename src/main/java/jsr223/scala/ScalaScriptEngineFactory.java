@@ -67,7 +67,7 @@ public class ScalaScriptEngineFactory implements ScriptEngineFactory {
 
     @Override
     public List<String> getExtensions() {
-        return Arrays.asList(".scala");
+        return Arrays.asList(".scala", ".scalaw");
     }
 
     @Override

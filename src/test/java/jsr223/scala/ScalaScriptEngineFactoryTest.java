@@ -41,7 +41,8 @@ import org.junit.Test;
 public class ScalaScriptEngineFactoryTest {
     @Test
     public void getExtensions() throws Exception {
-        assertThat(scalaScriptEngineFactory.getExtensions(), hasItem(containsString("scala")));
+        assertThat(scalaScriptEngineFactory.getExtensions(),
+                   hasItems(containsString(".scala"), containsString(".scalaw")));
     }
 
     @Test
