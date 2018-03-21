@@ -39,7 +39,7 @@ import org.apache.log4j.Logger;
  */
 public class ScalaStringBindingsUtilities {
 
-    private static final Logger log = Logger.getLogger(ScalaVersionGetter.class);
+    private static final Logger log = Logger.getLogger(ScalaStringBindingsUtilities.class);
 
     public static boolean isSystemVariable(String key) {
         switch (key) {

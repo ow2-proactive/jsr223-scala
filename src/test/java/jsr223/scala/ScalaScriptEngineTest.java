@@ -25,7 +25,18 @@
  */
 package jsr223.scala;
 
-import org.apache.log4j.BasicConfigurator;
+import static org.junit.Assert.assertEquals;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.script.ScriptEngine;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.ow2.proactive.scheduler.common.SchedulerConstants;
@@ -40,17 +51,6 @@ import org.ow2.proactive.scripting.ScriptResult;
 import org.ow2.proactive.scripting.SelectionScript;
 import org.ow2.proactive.scripting.SimpleScript;
 import org.ow2.proactive.scripting.TaskScript;
-
-import javax.script.ScriptEngine;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -199,9 +199,6 @@ public class ScalaScriptEngineTest {
     public void testReplicate() throws Exception {
         String replicateRScript = "val runs = 2";
 
-        BasicConfigurator.resetConfiguration();
-        BasicConfigurator.configure();
-
         FlowScript replicateScript = FlowScript.createReplicateFlowScript(replicateRScript,
                                                                           ScalaScriptEngineFactory.PARAMETERS.get(ScriptEngine.NAME));
         ScriptResult<FlowAction> res = replicateScript.execute();
@@ -215,9 +212,6 @@ public class ScalaScriptEngineTest {
     @Test
     public void testBranch() throws Exception {
         String branchRScript = "val branch=\"if\"";
-
-        BasicConfigurator.resetConfiguration();
-        BasicConfigurator.configure();
 
         FlowScript loopScript = FlowScript.createIfFlowScript(branchRScript,
                                                               ScalaScriptEngineFactory.PARAMETERS.get(ScriptEngine.NAME),
