@@ -19,5 +19,19 @@ User has access from the scala script to predefined variables, according to the 
     val loop = 2
     val runs = 4
     val selected = false
-    variables.put("AA","aa")
-    println(variables.get("AA"))
+
+Considering a simple 2-tasks workflow with task_A -> task_B
+
+    // In task_A
+    variables.put("AA", "aa")
+    variables.put("BB", Array(1, 2, 3))
+    variables.put("CC", Map("name" -> "Gromit", "likes" -> "cheese", "id" -> "1234"))
+    val result = Map(0 -> "abc", 1 -> "def")
+
+    // In task_B
+    println(variables.get("AA")) // aa
+    val arr = variables.get("BB").valueCast[Array[Int]]
+    println(arr(0)) // 1
+    println(variables.get("CC").values) // MapLike.DefaultValuesIterable(Gromit, cheese, 1234)
+    println(variables.get("CC").get("name")) // Some(Gromit)
+    println(results(0).getValue.get(0)) // Some(abc)
