@@ -80,7 +80,7 @@ dependencies {
     compile 'com.google.guava:guava:19.0'
     compile 'org.scala-lang:scala-compiler:2.12.3'
     compile 'org.scijava:scijava-common:2.69.0'
-    compile 'org.ow2.proactive:scheduler-api:+'
+    provided 'org.ow2.proactive:scheduler-api:+'
 
     testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.1'
     testCompile('junit:junit:4.12') {
