@@ -78,7 +78,7 @@ dependencies {
     compile group: 'net.sf.py4j', name: 'py4j', version: '0.10.6'
     compile 'org.projectlombok:lombok:1.16.6'
     compile 'com.google.guava:guava:19.0'
-    compile 'org.scala-lang:scala-compiler:2.12.3'
+    compile 'org.scala-lang:scala-compiler:2.12.10'
     compile 'org.scijava:scijava-common:2.69.0'
     provided 'org.ow2.proactive:scheduler-api:+'
 
