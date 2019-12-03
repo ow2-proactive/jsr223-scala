@@ -376,6 +376,11 @@ public class ScalaScriptEngineTest {
             return false;
         }
 
+        @Override
+        public Map<String, Serializable> getResultMap() {
+            throw new UnsupportedOperationException();
+        }
+
         public Map<String, Serializable> getVariables() {
             return null;
         }
